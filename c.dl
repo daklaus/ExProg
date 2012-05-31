@@ -1,0 +1,7 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Control Station           %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%usable(C) :- storage_plant(C), not ab(C), 
+
+c(C, o2, V) :- control(C), not ab(C), 

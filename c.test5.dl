@@ -1,0 +1,15 @@
+control(c).
+storage_plant(psh). c_max(psh, 20).
+windmill(w). c_max(w, 10).
+caloric_plant(f). c_max(f, 50).
+w_charge(20).
+c(c, i1, 20). c(c, i2, 20). %same power
+c(c, i3, empty). c(c, i4, 30). %psh empty, enough wind
+
+expect_c(c, i1, 20). expect_c(c, i2, 20).
+expect_c(c, i3, empty). expect_c(c, i4, 30).
+expect_c(c, o1, 0).
+expect_c(c, o2, 0).
+expect_c(c, o3, 0).
+expect_c(c, o4, 0).
+expect_c(c, o5, 0).
