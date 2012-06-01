@@ -2,6 +2,69 @@
 % Control Station           %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%usable(C) :- storage_plant(C), not ab(C), 
+min(X, Y, Min) :- #int(X), #int(Y), #int(Min), X < Y, Min = X.
+min(X, Y, Min) :- #int(X), #int(Y), #int(Min), X >= Y, Min = Y.
 
-c(C, o2, V) :- control(C), not ab(C), 
+windok :- control(C), not ab(C), c(C, i4, Wind), Wind >= 5, Wind <= 40.
+-windok :- control(C), not ab(C), c(C, i4, Wind), Wind < 5.
+-windok :- control(C), not ab(C), c(C, i4, Wind), Wind > 40.
+pshok :- control(C), not ab(C), c(C, i3, Storage), Storage != empty.
+-pshok :- control(C), not ab(C), c(C, i3, Storage), Storage = empty.
+
+
+% Case 1: L_demand > L_cur
+
+c(C, o2, 0) :- control(C), not ab(C), c(C, i1, L_cur), c(C, i2, L_demand),
+               L_demand > L_cur, -windok.
+c(C, o2, V) :- control(C), not ab(C), c(C, i1, L_cur), c(C, i2, L_demand),
+               L_demand > L_cur, windok,
+               windmill(P), c_max(P, V_max),
+               D = L_demand - L_cur, min(D, V_max, V).
+
+c(C, o1, 0) :- control(C), not ab(C), c(C, i1, L_cur), c(C, i2, L_demand),
+               L_demand > L_cur, -pshok.
+c(C, o1, V) :- control(C), not ab(C), c(C, i1, L_cur), c(C, i2, L_demand),
+               L_demand > L_cur, pshok,
+               storage_plant(P), c_max(P, V_max), c(C, o2, V_w),
+               D1 = L_demand - L_cur, D = D1 - V_w, min(D, V_max, V).
+
+c(C, o3, V) :- control(C), not ab(C), c(C, i1, L_cur), c(C, i2, L_demand),
+               L_demand > L_cur, 
+               caloric_plant(P), c_max(P, V_max), c(C, o2, V_w), c(C, o1, V_psh), 
+               D1 = L_demand - L_cur, D2 = D1 - V_w, D = D2 - V_psh, min(D, V_max, V).
+
+c(C, o4, 1) :- control(C), not ab(C), c(C, o1, V), V != 0, #int(V).
+c(C, o4, 1) :- control(C), not ab(C), c(C, o2, V), V != 0, #int(V).
+c(C, o4, 1) :- control(C), not ab(C), c(C, o3, V), V != 0, #int(V).
+
+c(C, o5, 0) :- c(C, o4, 1).
+
+
+% Case 2: L_demand < L_cur
+
+c(C, o1, charge) :- control(C), not ab(C), c(C, i1, L_cur), c(C, i2, L_demand),
+                    c(C, i3, Storage), Storage != full,
+                    L_demand < L_cur.
+
+c(C, o2, 0) :- c(C, o1, charge).
+c(C, o3, 0) :- c(C, o1, charge).
+
+c(C, o4, 2) :- control(C), not ab(C), c(C, o1, charge).
+
+c(C, o5, V) :- control(C), not ab(C), c(C, i1, L_cur), c(C, i2, L_demand),
+               c(C, o1, charge), D = L_cur - L_demand, w_charge(W_charge),
+               min(D, W_charge, V).
+
+
+% Other Cases
+
+c(C, o4, 0) :- control(C), not ab(C), c(C, i1, L_cur), c(C, i2, L_demand),
+               L_cur = L_demand.
+c(C, o4, 0) :- control(C), not ab(C), c(C, i1, L_cur), c(C, i2, L_demand),
+               c(C, i3, Storage), Storage = full,
+               L_demand < L_cur.
+
+c(C, o1, 0) :- c(C, o4, 0).
+c(C, o2, 0) :- c(C, o4, 0).
+c(C, o3, 0) :- c(C, o4, 0).
+c(C, o5, 0) :- c(C, o4, 0).
