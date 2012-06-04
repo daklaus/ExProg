@@ -1,0 +1,9 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Fossil-fuel power station %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+p(C, op, 0) :- caloric_plant(C), not ab(C), c(C, i1, 0).
+p(C, op, V) :- caloric_plant(C), not ab(C), c(C, i1, X),
+               c_max(C, C_max), X <= C_max, V = X, #int(V).
+p(C, op, V) :- caloric_plant(C), not ab(C), c(C, i1, X),
+               c_max(C, C_max), X > C_max, V = C_max, #int(V).

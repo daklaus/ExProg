@@ -1,0 +1,29 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Switching station         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Case 1: i4 = 0, i.e. inactive
+
+p(C, o1, 0) :- switching(C), not ab(C), c(C, i4, 0).
+p(C, o2, V) :- switching(C), not ab(C), c(C, i4, 0), c(C, i6, V).
+
+
+% Case 2: i4 = 1, i.e. accumulate
+
+p(C, o1, 0) :- switching(C), not ab(C), c(C, i4, 1).
+p(C, o2, V) :- switching(C), not ab(C), c(C, i4, 1),
+               p(C, i1, I1), p(C, i2, I2), p(C, i3, I3), c(C, i6, I6),
+               X1 = I1 + I2, X2 = I3 + I6, V = X1 + X2, #int(V).
+
+% Case 3: i4 = 2, i.e. store power
+
+p(C, o1, I5) :- switching(C), not ab(C), c(C, i4, 2),
+                c(C, i5, I5), c(C, i6, I6), I6 >= I5.
+p(C, o2, V) :- switching(C), not ab(C), c(C, i4, 2),
+               c(C, i5, I5), c(C, i6, I6), I6 >= I5,
+               V = I6 - I5.
+
+p(C, o1, I6) :- switching(C), not ab(C), c(C, i4, 2),
+                c(C, i5, I5), c(C, i6, I6), I6 < I5.
+p(C, o2, 0) :- switching(C), not ab(C), c(C, i4, 2),
+               c(C, i5, I5), c(C, i6, I6), I6 < I5.

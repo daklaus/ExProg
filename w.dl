@@ -1,0 +1,14 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Windmill                  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+windisok :- windmill(C), not ab(C), c(C, iw, X), X >= 5, X <= 40.
+-windisok :- windmill(C), not ab(C), c(C, iw, X), X < 5.
+-windisok :- windmill(C), not ab(C), c(C, iw, X), X > 40.
+
+p(C, op, 0) :- windmill(C), not ab(C), -windisok.
+p(C, op, 0) :- windmill(C), not ab(C), c(C, i1, 0).
+p(C, op, V) :- windmill(C), not ab(C), c(C, i1, X),
+               windisok, c_max(C, C_max), X <= C_max, V = X, #int(V).
+p(C, op, V) :- windmill(C), not ab(C), c(C, i1, X),
+               windisok, c_max(C, C_max), X > C_max, V = C_max, #int(V).

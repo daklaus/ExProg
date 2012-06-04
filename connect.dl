@@ -1,0 +1,38 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Connections               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Constants
+c_max(C, 20) :- storage_plant(C).
+c_max(C, 15) :- windmill(C).
+c_max(C, 60) :- caloric_plant(C).
+w_charge(30).
+
+% Control
+c(C, i1, V) :- control(C), in_c(l_current, V).
+c(C, i2, V) :- control(C), in_c(l_demant, V).
+c(C, i3, V) :- control(C), in_c(s_storage, V).
+c(C, i4, V) :- control(C), in_c(s_wind, V).
+
+% PSH
+c(C, is, V) :- storage_plant(C), in_c(s_storage, V).
+c(C, i1, V) :- storage_plant(C), control(C1), c(C1, o1, V).
+c(C, i2, V) :- storage_plant(C), switching(C1), p(C1, o1, V).
+
+% Windmill
+c(C, iw, V) :- windmill(C), in_c(s_wind, V).
+c(C, i1, V) :- windmill(C), control(C1), c(C1, o2, V).
+
+% Caloric
+c(C, i1, V) :- caloric_plant(C), control(C1), c(C1, o3, V).
+
+% Switching
+p(C, i1, V) :- switching(C), storage_plant(C1), p(C1, op, V).
+p(C, i2, V) :- switching(C), windmill(C1), p(C1, op, V).
+p(C, i3, V) :- switching(C), caloric_plant(C1), p(C1, op, V).
+c(C, i4, V) :- switching(C), control(C1), c(C1, o4, V).
+c(C, i5, V) :- switching(C), control(C1), c(C1, o5, V).
+c(C, i6, V) :- switching(C), in_p(p_in, V).
+
+% Output
+p(C, o2, V) :- switching(C), out_p(p_out, V).

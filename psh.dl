@@ -1,0 +1,37 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Pumped-storage Hydropower %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Case 1: Charge
+
+p(C, op, 0) :- storage_plant(C), not ab(C), c(C, i1, charge),
+               c(C, is, Storage), Storage != full,
+               p(C, i2, Energy), w_charge(W_charge), Energy <= W_charge.
+p(C, op, V) :- storage_plant(C), not ab(C), c(C, i1, charge),
+               c(C, is, Storage), Storage != full,
+               p(C, i2, Energy), w_charge(W_charge), Energy > W_charge,
+               V = Energy - W_charge.
+
+p(C, op, V) :- storage_plant(C), not ab(C), c(C, i1, charge),
+               c(C, is, Storage), Storage = full,
+               p(C, i2, V).
+
+
+% Case 2: Generate
+
+p(C, op, I2) :- storage_plant(C), not ab(C), c(C, i1, I1), #int(I1),
+                c(C, is, Storage), Storage = empty,
+                p(C, i2, I2).
+p(C, op, V) :- storage_plant(C), not ab(C), c(C, i1, I1), #int(I1),
+               c_max(C, C_max), I1 <= C_max,
+               c(C, is, Storage), Storage != empty,
+               p(C, i2, I2), V = I1 + I2.
+p(C, op, V) :- storage_plant(C), not ab(C), c(C, i1, I1), #int(I1),
+               c_max(C, C_max), I1 > C_max,
+               c(C, is, Storage), Storage != empty,
+               p(C, i2, I2), V = C_max + I2.
+
+
+% Other Cases
+
+p(C, op, 0) :- storage_plant(C), not ab(C), c(C, i1, 0), p(C, i2, 0).

@@ -1,0 +1,9 @@
+storage_plant(psh).
+c_max(psh, 30).
+w_charge(20).
+c(psh, i1, charge). c(psh, is, half_full).
+p(psh, i2, 30).
+
+expect_c(psh, i1, charge). expect_c(psh, is, half_full).
+expect_p(psh, i2, 30).
+expect_p(psh, op, 10).
